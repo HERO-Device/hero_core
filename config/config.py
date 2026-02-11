@@ -120,3 +120,40 @@ def is_sensor_enabled(sensor_name):
     """
     config = get_sensor_config(sensor_name)
     return config.get('enabled', False)
+
+# ============================================================================
+# ETHICS & RETENTION CONFIGURATION
+# ============================================================================
+
+ETHICS = {
+    'anonymization_days': 7,
+    'deletion_days': 730,  # 2 years
+    'consent_version': 'v1.0',
+}
+
+# ============================================================================
+# GAME CONFIGURATION
+# ============================================================================
+
+GAMES = {
+    'game_order': [
+        'memory_game',
+        'reaction_time_game',
+        'pattern_recognition_game',
+        'attention_test_game'
+    ],
+    'rest_duration_seconds': 30,  # Rest period between games
+}
+
+# Helper functions for ethics
+def get_ethics_config():
+    """Get ethics configuration"""
+    return ETHICS.copy()
+
+def get_game_order():
+    """Get ordered list of games"""
+    return GAMES['game_order'].copy()
+
+def get_rest_duration():
+    """Get rest period duration in seconds"""
+    return GAMES['rest_duration_seconds']
