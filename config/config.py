@@ -51,8 +51,10 @@ SENSOR_CONFIG = {
     },
     'eye_tracking': {
         'enabled': True,
-        'units': 'pixels',
+        'units': 'pixels',  # 2D screen coordinates
         'confidence_threshold': 0.7,
+        'screen_resolution': (1920, 1080),  # Default screen resolution (width, height)
+        'coordinate_system': 'top_left_origin',  # (0,0) is top-left corner
     },
     'heart_rate': {
         'enabled': True,

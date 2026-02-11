@@ -69,22 +69,22 @@ class SensorEEG(Base):
 
 
 class SensorEyeTracking(Base):
-    """Eye tracking sensor data - gaze position and pupil diameter"""
+    """Eye tracking sensor data - 2D screen coordinates and pupil diameter"""
     __tablename__ = 'sensor_eye_tracking'
 
     time = Column(DateTime(timezone=True), nullable=False, primary_key=True)
     session_id = Column(UUID(as_uuid=True), ForeignKey('test_sessions.session_id', ondelete='CASCADE'), nullable=False,
                         primary_key=True)
 
-    gaze_x = Column(Float)
-    gaze_y = Column(Float)
-    pupil_diameter_left = Column(Float)
-    pupil_diameter_right = Column(Float)
-    confidence = Column(Float)
+    gaze_x = Column(Float)  # Screen X coordinate in pixels (0 = left)
+    gaze_y = Column(Float)  # Screen Y coordinate in pixels (0 = top)
+    pupil_diameter_left = Column(Float)  # Left pupil diameter (mm)
+    pupil_diameter_right = Column(Float)  # Right pupil diameter (mm)
+    confidence = Column(Float)  # Tracking confidence (0-1)
     is_valid = Column(Boolean, default=True)
 
     def __repr__(self):
-        return f"<EyeTracking(time={self.time}, gaze=({self.gaze_x:.1f}, {self.gaze_y:.1f}))>"
+        return f"<EyeTracking(time={self.time}, gaze=({self.gaze_x:.1f}px, {self.gaze_y:.1f}px), confidence={self.confidence:.2f})>"
 
 
 class SensorHeartRate(Base):

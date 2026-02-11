@@ -80,25 +80,31 @@ COMMENT ON COLUMN sensor_eeg.quality_flag IS '0=good, 1=artifact, 2=noise, 3=ele
 -- ============================================================================
 -- RAW SENSOR DATA - EYE TRACKING
 -- ============================================================================
--- Gaze position and pupil diameter
--- NOTE: Schema may need refinement after eye tracking demo from team
+-- Gaze position (2D screen coordinates) and pupil diameter
+-- Updated: Team confirmed 2D screen coordinate format
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS sensor_eye_tracking (
     time TIMESTAMPTZ NOT NULL,
     session_id UUID NOT NULL REFERENCES test_sessions(session_id) ON DELETE CASCADE,
-    gaze_x DOUBLE PRECISION,  -- Gaze X coordinate (screen coordinates or normalized)
-    gaze_y DOUBLE PRECISION,  -- Gaze Y coordinate
+    gaze_x DOUBLE PRECISION,  -- Gaze X coordinate in screen pixels (0 = left edge)
+    gaze_y DOUBLE PRECISION,  -- Gaze Y coordinate in screen pixels (0 = top edge)
     pupil_diameter_left DOUBLE PRECISION,   -- Left pupil diameter (mm)
     pupil_diameter_right DOUBLE PRECISION,  -- Right pupil diameter (mm)
     confidence DOUBLE PRECISION,  -- Tracking confidence (0-1)
     is_valid BOOLEAN DEFAULT TRUE
 );
 
+-- Convert to hypertable (time-series optimized)
+-- COMMENTED OUT FOR WINDOWS TESTING - UNCOMMENT FOR RPI5
 -- SELECT create_hypertable('sensor_eye_tracking', 'time', if_not_exists => TRUE);
+
+-- Create index on session_id for querying specific sessions
 CREATE INDEX idx_eye_session ON sensor_eye_tracking(session_id, time DESC);
 
-COMMENT ON TABLE sensor_eye_tracking IS 'Eye tracking data: gaze position and pupil diameter (schema subject to revision)';
+COMMENT ON TABLE sensor_eye_tracking IS 'Eye tracking data: 2D screen coordinates (pixels) and pupil diameter';
+COMMENT ON COLUMN sensor_eye_tracking.gaze_x IS 'Horizontal gaze position in screen pixels (0 = left edge)';
+COMMENT ON COLUMN sensor_eye_tracking.gaze_y IS 'Vertical gaze position in screen pixels (0 = top edge)';
 COMMENT ON COLUMN sensor_eye_tracking.confidence IS 'Tracking confidence score (0-1), low values indicate tracking loss';
 
 -- ============================================================================
