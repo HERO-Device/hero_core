@@ -5,6 +5,7 @@ All sensor hypertables and processed metrics
 
 from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
+import uuid
 
 from .base import Base
 
@@ -69,22 +70,22 @@ class SensorEEG(Base):
 
 
 class SensorEyeTracking(Base):
-    """Eye tracking sensor data - 2D screen coordinates and pupil diameter"""
+    """Eye tracking sensor data - 2D screen coordinates and angular data"""
     __tablename__ = 'sensor_eye_tracking'
 
     time = Column(DateTime(timezone=True), nullable=False, primary_key=True)
     session_id = Column(UUID(as_uuid=True), ForeignKey('test_sessions.session_id', ondelete='CASCADE'), nullable=False,
                         primary_key=True)
 
-    gaze_x = Column(Float)  # Screen X coordinate in pixels (0 = left)
-    gaze_y = Column(Float)  # Screen Y coordinate in pixels (0 = top)
-    pupil_diameter_left = Column(Float)  # Left pupil diameter (mm)
-    pupil_diameter_right = Column(Float)  # Right pupil diameter (mm)
-    confidence = Column(Float)  # Tracking confidence (0-1)
+    gaze_x = Column(Float, nullable=False)  # Screen X coordinate in pixels (0 = left)
+    gaze_y = Column(Float, nullable=False)  # Screen Y coordinate in pixels (0 = top)
+    raw_yaw = Column(Float)                 # Raw yaw angle in degrees
+    raw_pitch = Column(Float)               # Raw pitch angle in degrees
+    confidence = Column(Float)              # Tracking confidence (0-1)
     is_valid = Column(Boolean, default=True)
 
     def __repr__(self):
-        return f"<EyeTracking(time={self.time}, gaze=({self.gaze_x:.1f}px, {self.gaze_y:.1f}px), confidence={self.confidence:.2f})>"
+        return f"<EyeTracking(time={self.time}, gaze=({self.gaze_x:.1f}px, {self.gaze_y:.1f}px))>"
 
 
 class SensorHeartRate(Base):
@@ -118,6 +119,41 @@ class SensorOximeter(Base):
     def __repr__(self):
         return f"<Oximeter(time={self.time}, red={self.red_signal:.2f}, ir={self.infrared_signal:.2f})>"
 
+
+# ============================================================================
+# CALIBRATION DATA MODELS
+# ============================================================================
+
+class CalibrationEyeTracking(Base):
+    """Eye tracking calibration data - one calibration per session"""
+    __tablename__ = 'calibration_eye_tracking'
+
+    calibration_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    session_id = Column(UUID(as_uuid=True), ForeignKey('test_sessions.session_id', ondelete='CASCADE'), nullable=False,
+                        unique=True)
+    timestamp = Column(DateTime(timezone=True), nullable=False)
+
+    # Eye sphere offsets (left eye) - in head-local coordinates
+    left_sphere_offset_x = Column(Float, nullable=False)
+    left_sphere_offset_y = Column(Float, nullable=False)
+    left_sphere_offset_z = Column(Float, nullable=False)
+    left_nose_scale = Column(Float, nullable=False)  # Nose scale at calibration time
+
+    # Eye sphere offsets (right eye) - in head-local coordinates
+    right_sphere_offset_x = Column(Float, nullable=False)
+    right_sphere_offset_y = Column(Float, nullable=False)
+    right_sphere_offset_z = Column(Float, nullable=False)
+    right_nose_scale = Column(Float, nullable=False)  # Nose scale at calibration time
+
+    # Screen center calibration offsets (in degrees)
+    offset_yaw = Column(Float, nullable=False)
+    offset_pitch = Column(Float, nullable=False)
+
+    # Metadata
+    notes = Column(String)
+
+    def __repr__(self):
+        return f"<CalibrationEyeTracking(session_id={self.session_id}, timestamp={self.timestamp})>"
 
 # ============================================================================
 # PROCESSED METRICS
