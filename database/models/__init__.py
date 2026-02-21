@@ -5,6 +5,8 @@ from .ethics import (
     RetentionPolicy
 )
 
+from .game_results import GameResult
+
 # Import events model
 from .events import Event
 
