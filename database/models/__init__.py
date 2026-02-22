@@ -1,45 +1,65 @@
-# Import ethics models
+# HERO Core - Database Models
+# Imports all models so SQLAlchemy can resolve relationships correctly
+
+from .base import Base
+
+# Core tables
+from .user import User
+from .session import TestSession
+
+# Sensor calibration (must come before sensors due to relationships)
+from .calibration import SensorCalibration
+
+# Sensor data
+from .sensors import (
+    SensorAccelerometer,
+    SensorGyroscope,
+    SensorEEG,
+    SensorEyeTracking,
+    SensorHeartRate,
+    SensorOximeter,
+    CalibrationEyeTracking,
+    MetricsProcessed,
+)
+
+# Ethics & compliance
 from .ethics import (
     UserConsent,
     DataLifecycleLog,
-    RetentionPolicy
+    RetentionPolicy,
 )
 
+# Events & game results
+from .events import Event
 from .game_results import GameResult
 
-# Import events model
-from .events import Event
+# Connection helpers
+from .connection import create_db_engine, create_db_session, get_db_connection
 
-# Update __all__ to include new models
 __all__ = [
-    # Base
     'Base',
-    
-    # Core tables
+    # Core
     'User',
     'TestSession',
-    
-    # Sensor data
+    # Calibration
+    'SensorCalibration',
+    # Sensors
     'SensorAccelerometer',
     'SensorGyroscope',
     'SensorEEG',
     'SensorEyeTracking',
     'SensorHeartRate',
     'SensorOximeter',
+    'CalibrationEyeTracking',
     'MetricsProcessed',
-    
-    # Metadata
-    'SensorCalibration',
-    
-    # Ethics & Compliance
+    # Ethics
     'UserConsent',
     'DataLifecycleLog',
     'RetentionPolicy',
-    
-    # Events
+    # Events & results
     'Event',
-    
-    # Connection helpers
+    'GameResult',
+    # Connection
     'create_db_engine',
     'create_db_session',
     'get_db_connection',

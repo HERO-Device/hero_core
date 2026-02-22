@@ -3,8 +3,8 @@ Game Results Model
 Stores cognitive test results for analysis
 """
 
-from sqlalchemy import Column, Integer, Float, String, Boolean, ForeignKey, CheckConstraint
-from sqlalchemy.dialects.postgresql import UUID, TIMESTAMPTZ, JSONB
+from sqlalchemy import Column, Integer, Float, String, Boolean, ForeignKey, CheckConstraint, DateTime
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 from .base import Base
 
@@ -21,8 +21,8 @@ class GameResult(Base):
     game_number = Column(Integer)
     
     # Timing
-    started_at = Column(TIMESTAMPTZ, nullable=False)
-    completed_at = Column(TIMESTAMPTZ, nullable=False)
+    started_at = Column(DateTime(timezone=True), nullable=False)
+    completed_at = Column(DateTime(timezone=True), nullable=False)
     duration_seconds = Column(Float)
     
     # Performance metrics
