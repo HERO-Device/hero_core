@@ -7,13 +7,14 @@ from sqlalchemy import Column, Integer, Float, String, Boolean, ForeignKey, Chec
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 from .base import Base
+import uuid  # ADD THIS IMPORT
 
 
 class GameResult(Base):
     """Cognitive test game results"""
     __tablename__ = 'game_results'
     
-    result_id = Column(UUID(as_uuid=True), primary_key=True, server_default='uuid_generate_v4()')
+    result_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, server_default='uuid_generate_v4()')  # ADD default=uuid.uuid4
     session_id = Column(UUID(as_uuid=True), ForeignKey('test_sessions.session_id', ondelete='CASCADE'), nullable=False)
     
     # Game identification
@@ -41,6 +42,9 @@ class GameResult(Base):
     
     # Quality
     completion_status = Column(String)
+
+    # Relationships
+    session = relationship("TestSession", back_populates="game_results")  # ADD THIS BLOCK
     
     __table_args__ = (
         CheckConstraint('duration_seconds > 0', name='valid_duration'),

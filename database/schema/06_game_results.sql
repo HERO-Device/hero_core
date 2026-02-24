@@ -9,8 +9,8 @@ CREATE TABLE IF NOT EXISTS game_results (
     session_id UUID NOT NULL REFERENCES test_sessions(session_id) ON DELETE CASCADE,
     
     -- Game identification
-    game_name TEXT NOT NULL,  -- 'memory_game', 'reaction_time', 'trail_making', 'spiral_test'
-    game_number INTEGER,      -- 1-4, order in session
+    game_name TEXT NOT NULL,  -- 'Spiral', 'Trail', 'Shapes', 'Memory'
+    game_number INTEGER,      -- 1-4, order in session (1=Spiral, 2=Trail, 3=Shapes, 4=Memory)
     
     -- Timing
     started_at TIMESTAMPTZ NOT NULL,
@@ -29,6 +29,10 @@ CREATE TABLE IF NOT EXISTS game_results (
     average_reaction_time_ms FLOAT,
     
     -- Additional data (JSON for game-specific fields)
+    -- Spiral:  {classification, prediction_value, trace_file, augmented_features, n_points}
+    -- Trail:   {completion_time, path_efficiency, path_smoothness, errors, circle_path, ...}
+    -- Shapes:  {total_questions, correct, incorrect, accuracy_percent, avg_reaction_time_s, trial_log}
+    -- Memory:  {score, total_trials, accuracy_percent, incorrect_count, avg_cell_distance, trial_log}
     game_data JSONB,
     
     -- Quality
@@ -39,7 +43,7 @@ CREATE TABLE IF NOT EXISTS game_results (
 );
 
 -- Indexes
-CREATE INDEX idx_game_results_session ON game_results(session_id);
-CREATE INDEX idx_game_results_game ON game_results(game_name);
+CREATE INDEX IF NOT EXISTS idx_game_results_session ON game_results(session_id);
+CREATE INDEX IF NOT EXISTS idx_game_results_game ON game_results(game_name);
 
 COMMENT ON TABLE game_results IS 'Cognitive test game results for analysis';

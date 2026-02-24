@@ -26,6 +26,8 @@ class TestSession(Base):
     # Relationships
     user = relationship("User", back_populates="sessions")
     calibrations = relationship("SensorCalibration", back_populates="session", cascade="all, delete-orphan")
+    game_results = relationship("GameResult", back_populates="session", cascade="all, delete-orphan")  # ADD THIS LINE
 
     def __repr__(self):
         return f"<TestSession(session_id='{self.session_id}', user_id='{self.user_id}', started={self.started_at})>"
+        
