@@ -4,7 +4,7 @@ All sensor hypertables and processed metrics
 """
 
 from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 import uuid
 
 from .base import Base
@@ -125,29 +125,24 @@ class SensorOximeter(Base):
 # ============================================================================
 
 class CalibrationEyeTracking(Base):
-    """Eye tracking calibration data - one calibration per session"""
+    """Eye tracking calibration data — polynomial regression coefficients"""
     __tablename__ = 'calibration_eye_tracking'
 
     calibration_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    session_id = Column(UUID(as_uuid=True), ForeignKey('test_sessions.session_id', ondelete='CASCADE'), nullable=False,
-                        unique=True)
+    session_id = Column(UUID(as_uuid=True), ForeignKey('test_sessions.session_id', ondelete='CASCADE'),
+                        nullable=False, unique=True)
     timestamp = Column(DateTime(timezone=True), nullable=False)
 
-    # Eye sphere offsets (left eye) - in head-local coordinates
-    left_sphere_offset_x = Column(Float, nullable=False)
-    left_sphere_offset_y = Column(Float, nullable=False)
-    left_sphere_offset_z = Column(Float, nullable=False)
-    left_nose_scale = Column(Float, nullable=False)  # Nose scale at calibration time
+    # Polynomial regression coefficients (15 terms for degree-2 on 4 features)
+    coeff_x = Column(JSONB, nullable=False)       # model_x.coef_ as list
+    coeff_y = Column(JSONB, nullable=False)       # model_y.coef_ as list
+    intercept_x = Column(Float, nullable=False)   # model_x.intercept_
+    intercept_y = Column(Float, nullable=False)   # model_y.intercept_
+    poly_degree = Column(Integer, nullable=False, default=2)
 
-    # Eye sphere offsets (right eye) - in head-local coordinates
-    right_sphere_offset_x = Column(Float, nullable=False)
-    right_sphere_offset_y = Column(Float, nullable=False)
-    right_sphere_offset_z = Column(Float, nullable=False)
-    right_nose_scale = Column(Float, nullable=False)  # Nose scale at calibration time
-
-    # Screen center calibration offsets (in degrees)
-    offset_yaw = Column(Float, nullable=False)
-    offset_pitch = Column(Float, nullable=False)
+    # Raw calibration data (for reproducibility / refit)
+    calib_features = Column(JSONB)  # list of 9 x [lx, ly, rx, ry]
+    calib_targets  = Column(JSONB)  # list of 9 x [tx, ty] in pixels
 
     # Metadata
     notes = Column(String)
@@ -175,3 +170,4 @@ class MetricsProcessed(Base):
 
     def __repr__(self):
         return f"<Metric(type='{self.metric_type}', value={self.value:.2f}, time={self.time})>"
+        
