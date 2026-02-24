@@ -19,7 +19,8 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/your-org/HERO",
-    packages=find_packages(),
+    packages=['hero_core', 'hero_core.config', 'hero_core.coordinator', 'hero_core.database', 'hero_core.database.models', 'hero_core.database.schema'],
+    package_dir={'hero_core': '.'},
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Healthcare Industry",
