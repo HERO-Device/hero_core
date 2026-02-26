@@ -125,7 +125,7 @@ class SensorOximeter(Base):
 # ============================================================================
 
 class CalibrationEyeTracking(Base):
-    """Eye tracking calibration data — polynomial regression coefficients"""
+    """Eye tracking calibration data — polynomial regression coefficients + validation results"""
     __tablename__ = 'calibration_eye_tracking'
 
     calibration_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -144,11 +144,16 @@ class CalibrationEyeTracking(Base):
     calib_features = Column(JSONB)  # list of 9 x [lx, ly, rx, ry]
     calib_targets  = Column(JSONB)  # list of 9 x [tx, ty] in pixels
 
+    # Validation results (filled in after _run_validation)
+    validation_mean_deg = Column(Float)   # mean gaze error in degrees
+    validation_std_deg  = Column(Float)   # std of gaze error in degrees
+    validation_rating   = Column(String)  # 'GOOD', 'ACCEPTABLE', or 'POOR'
+
     # Metadata
     notes = Column(String)
 
     def __repr__(self):
-        return f"<CalibrationEyeTracking(session_id={self.session_id}, timestamp={self.timestamp})>"
+        return f"<CalibrationEyeTracking(session_id={self.session_id}, rating={self.validation_rating}, timestamp={self.timestamp})>"
 
 # ============================================================================
 # PROCESSED METRICS
