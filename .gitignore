@@ -47,3 +47,20 @@ htmlcov/
 # Environment
 .env
 .env.local
+
+# Virtual environments (all variants)
+.venv*/
+venv*/
+
+# Data & outputs
+data/
+*.csv
+*.log
+temp/
+screenshots/
+
+# ML model files (large binaries, stored separately)
+*.joblib
+*.keras
+*.task
+*.h5
