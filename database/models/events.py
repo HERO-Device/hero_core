@@ -11,6 +11,25 @@ from .base import Base
 
 class Event(Base):
     """Event table - tracks all system events"""
+    """
+    Records a game event occurring during a session.
+
+    Written by Consultation._log_game_event() for game_start and game_end
+    events. The schema is intentionally generic so other event types
+    (e.g. button presses, errors) can be logged without schema changes.
+
+    Columns:
+        event_id:       Primary key, auto-generated UUID.
+        time:           UTC timestamp of the event (also part of composite PK).
+        session_id:     Foreign key → test_sessions.session_id.
+        event_type:     e.g. 'game_start', 'game_end'.
+        event_category: Broad grouping e.g. 'game', 'system', 'interaction'.
+        event_data:     JSONB dict of arbitrary event-specific metadata.
+        game_name:      Game this event relates to. None for system events.
+        game_number:    Ordinal position of the game in the session. None for system events.
+        screen_x:       Optional X coordinate of a screen interaction in pixels.
+        screen_y:       Optional Y coordinate of a screen interaction in pixels.
+    """
     __tablename__ = 'events'
 
     event_id = Column(UUID(as_uuid=True), primary_key=True)
@@ -34,6 +53,7 @@ class Event(Base):
     screen_y = Column(Float)
 
     def __repr__(self):
+        """String representation for logging and debugging."""
         if self.game_name:
             return f"<Event(type='{self.event_type}', game='{self.game_name}', game_num={self.game_number}, time={self.time})>"
         return f"<Event(type='{self.event_type}', category='{self.event_category}', time={self.time})>"
