@@ -4,6 +4,9 @@
 from .base import Base
 
 # Core tables
+# AnonDemographics must be imported before TestSession so SQLAlchemy
+# can resolve the anon_demographics relationship on TestSession.
+from .anon_demographics import AnonDemographics
 from .user import User
 from .session import TestSession
 
@@ -39,6 +42,7 @@ from .connection import create_db_engine, create_db_session, get_db_connection
 __all__ = [
     'Base',
     # Core
+    'AnonDemographics',
     'User',
     'TestSession',
     # Calibration
